@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-// import axios from "axios";        // ← Descomenta cuando el backend esté listo
+import axios from "axios";       
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ export default function LoginPage() {
     // ✅ Revisa en consola lo que se enviará
     console.log("Payload enviado:", { email, password });
 
-    /* ❌ Descomenta cuando tu compañero implemente el backend
+    
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
@@ -26,7 +26,7 @@ export default function LoginPage() {
       console.error("Error al iniciar sesión:", err);
       alert("Error al iniciar sesión (backend aún no responde)");
     }
-    */
+  
 
     alert("Inicio de sesión exitoso (simulado)");
   };
