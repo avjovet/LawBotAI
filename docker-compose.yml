@@ -14,3 +14,45 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=300
       - WATCHPACK_POLLING=true
+
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PORT=4000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=ragdb
+      - JWT_SECRET=supersecreto
+    depends_on:
+      - postgres
+    networks:
+      - rag-net
+
+  postgres:
+    image: postgres:15
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rag-net
+
+
+volumes:
+  pgdata:
+
+networks:
+  rag-net:

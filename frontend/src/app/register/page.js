@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-// import axios from "axios";        // ← Descomenta cuando el backend esté listo
+import axios from "axios";        // ← Descomenta cuando el backend esté listo
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export default function RegisterPage() {
     // ✅ Revisa en consola lo que se enviará
     console.log("Payload enviado:", { name, email, password });
 
-    /* ❌ Descomenta cuando tu compañero implemente el backend
+    
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
@@ -27,7 +27,7 @@ export default function RegisterPage() {
       console.error("Error al registrarse:", err);
       alert("Error al registrarse (backend aún no responde)");
     }
-    */
+    
 
     alert("Registro exitoso (simulado)");
   };
