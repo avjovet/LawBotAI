@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import axios from "axios";        // ← Descomenta cuando el backend esté listo
+import { saveToken } from "../../../utils/auth";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -21,14 +22,14 @@ export default function RegisterPage() {
         { name, email, password }
       );
       console.log("Registro enviado:", res.data);
-      // localStorage.setItem("token", res.data.token); // ejemplo
+      saveToken(res.data.token);
       window.location.href = "/chat";                 // redirige al chat
     } catch (err) {
       console.error("Error al registrarse:", err);
       alert("Error al registrarse (backend aún no responde)");
     }
     
-
+    
     alert("Registro exitoso (simulado)");
   };
 

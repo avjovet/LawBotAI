@@ -28,7 +28,23 @@ const register = async (req, res) => {
 
     console.log("✅ Usuario creado:", user);
 
-    res.status(201).json({ message: 'Usuario registrado correctamente', user });
+    // 👉 Generar token JWT después de crear el usuario
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    // 👉 Devolver token al frontend
+    res.status(201).json({
+      message: 'Usuario registrado correctamente',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        nombre: user.nombre,
+      }
+    });
   } catch (err) {
     console.error("❌ Error en register:", err.message);
     res.status(500).json({ message: 'Error interno del servidor', error: err.message });
