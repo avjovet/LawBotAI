@@ -25,6 +25,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* globals.css */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+
 @keyframes fadeUp {
   0% {
     opacity: 0;
