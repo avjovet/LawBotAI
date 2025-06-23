@@ -3,40 +3,52 @@ import { useState } from "react";
 import Link from "next/link";
 // import axios from "axios";        // ← Descomenta cuando el backend esté listo
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     // ✅ Revisa en consola lo que se enviará
-    console.log("Payload enviado:", { email, password });
+    console.log("Payload enviado:", { name, email, password });
 
     /* ❌ Descomenta cuando tu compañero implemente el backend
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        { email, password }
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
+        { name, email, password }
       );
-      console.log("Login enviado:", res.data);
+      console.log("Registro enviado:", res.data);
       // localStorage.setItem("token", res.data.token); // ejemplo
       window.location.href = "/chat";                 // redirige al chat
     } catch (err) {
-      console.error("Error al iniciar sesión:", err);
-      alert("Error al iniciar sesión (backend aún no responde)");
+      console.error("Error al registrarse:", err);
+      alert("Error al registrarse (backend aún no responde)");
     }
     */
 
-    alert("Inicio de sesión exitoso (simulado)");
+    alert("Registro exitoso (simulado)");
   };
 
   return (
     <section className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] px-4">
       <div className="w-full max-w-md space-y-6">
-        <h1 className="text-2xl font-bold text-center text-white">Iniciar sesión</h1>
+        <h1 className="text-2xl font-bold text-center text-white">Crear cuenta</h1>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label className="block mb-1 text-sm text-gray-300">Nombre completo</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full rounded-xl bg-black border border-gray-400 p-2 text-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+            />
+          </div>
+
           <div>
             <label className="block mb-1 text-sm text-gray-300">Correo electrónico</label>
             <input
@@ -63,14 +75,14 @@ export default function LoginPage() {
             type="submit"
             className="w-full rounded-xl border border-gray-400 text-white font-semibold py-2 hover:bg-gray-400 hover:text-black transition"
           >
-            Ingresar
+            Registrarse
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-400">
-          ¿No tienes cuenta?{" "}
-          <Link href="/register" className="text-white hover:underline">
-            Regístrate aquí
+          ¿Ya tienes una cuenta?{" "}
+          <Link href="/login" className="text-white hover:underline">
+            Inicia sesión aquí
           </Link>
         </p>
       </div>
