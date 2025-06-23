@@ -1,4 +1,4 @@
--- Crear base de datos
+/*-- Crear base de datos
 CREATE DATABASE ragdb;
 
 -- Conectar a la nueva base
@@ -27,3 +27,4 @@ CREATE TABLE mensajes (
   contenido TEXT,
   timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+*/

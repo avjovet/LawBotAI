@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import axios from "axios";       
+import axios from "axios";
+import { saveToken } from "../../../utils/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,25 +11,25 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // ✅ Revisa en consola lo que se enviará
     console.log("Payload enviado:", { email, password });
 
-    
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
         { email, password }
       );
-      console.log("Login enviado:", res.data);
-      // localStorage.setItem("token", res.data.token); // ejemplo
-      window.location.href = "/chat";                 // redirige al chat
+
+      console.log("Login exitoso:", res.data);
+
+      // ✅ Guardar token JWT
+      saveToken(res.data.token);
+
+      // ✅ Redirigir al chat
+      window.location.href = "/chat";
     } catch (err) {
       console.error("Error al iniciar sesión:", err);
-      alert("Error al iniciar sesión (backend aún no responde)");
+      alert("Error al iniciar sesión. Verifica tu correo y contraseña.");
     }
-  
-
-    alert("Inicio de sesión exitoso (simulado)");
   };
 
   return (

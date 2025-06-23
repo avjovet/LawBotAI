@@ -1,6 +1,7 @@
+// backend/src/controllers/auth.controller.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { createUser, findUserByEmail } = require('../services/auth.service');
+const prisma = require('../utils/prisma');
 
 const register = async (req, res) => {
   try {
@@ -8,7 +9,7 @@ const register = async (req, res) => {
 
     console.log("➡️ Datos recibidos:", { name, email, password });
 
-    const userExists = await findUserByEmail(email);
+    const userExists = await prisma.usuario.findUnique({ where: { email } });
     if (userExists) {
       console.log("⚠️ Usuario ya registrado:", email);
       return res.status(400).json({ message: 'Email ya registrado' });
@@ -17,7 +18,14 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     console.log("🔐 Password hasheada:", hashedPassword);
 
-    const user = await createUser({ email, nombre: name, password_hash: hashedPassword });
+    const user = await prisma.usuario.create({
+      data: {
+        email,
+        nombre: name,
+        passwordHash: hashedPassword,
+      }
+    });
+
     console.log("✅ Usuario creado:", user);
 
     res.status(201).json({ message: 'Usuario registrado correctamente', user });
@@ -27,17 +35,16 @@ const register = async (req, res) => {
   }
 };
 
-
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await findUserByEmail(email);
+    const user = await prisma.usuario.findUnique({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    const match = await bcrypt.compare(password, user.password_hash);
+    const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
@@ -61,6 +68,5 @@ const login = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor', error: err.message });
   }
 };
-
 
 module.exports = { register, login };
