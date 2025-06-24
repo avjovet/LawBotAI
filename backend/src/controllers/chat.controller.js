@@ -11,23 +11,18 @@ const handleChat = async (req, res) => {
   }
 
   try {
-    // 🔄 Crear nuevo chat con el modelo
     const chat = await ChatModel.create(userId);
 
-    // 💬 Guardar mensaje del usuario
     const userMessage = await MensajeModel.create({
       chatId: chat.id,
       rol: 'user',
       contenido: prompt,
     });
 
-    // 🌐 Llamada al modelo de IA en Colab vía ngrok
+    // 🔄 NUEVO ENDPOINT RAG
     const llamaResponse = await axios.post(
-      'https://3014-34-125-2-7.ngrok-free.app/v1/chat/completions',
-      {
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-      },
+      'https://2959-34-124-243-145.ngrok-free.app/v1/rag',
+      { question: prompt },
       {
         headers: {
           'ngrok-skip-browser-warning': 'true',
@@ -35,9 +30,8 @@ const handleChat = async (req, res) => {
       }
     );
 
-    const respuestaIA = llamaResponse.data.choices[0].message.content;
+    const respuestaIA = llamaResponse.data.answer;
 
-    // 🤖 Guardar mensaje del asistente
     const aiMessage = await MensajeModel.create({
       chatId: chat.id,
       rol: 'assistant',
@@ -52,7 +46,7 @@ const handleChat = async (req, res) => {
 
   } catch (err) {
     console.error('❌ Error en el controlador de chat:', err.message);
-    res.status(500).json({ message: 'Error al comunicarse con lawbot pipipipi' });
+    res.status(500).json({ message: 'Error al comunicarse con el modelo RAG' });
   }
 };
 
