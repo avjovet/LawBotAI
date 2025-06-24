@@ -30,6 +30,22 @@ export default function ChatPage() {
       return;
     }
 
+    // 💬 Mostrar el mensaje del usuario inmediatamente
+    const userMessage = {
+      rol: "user",
+      contenido: input,
+    };
+
+    // 🕓 Mostrar mensaje temporal del asistente
+    const loadingMessage = {
+      rol: "assistant",
+      contenido: "Escribiendo respuesta...",
+      temporal: true,
+    };
+
+    setMessages((prev) => [...prev, userMessage, loadingMessage]);
+    setInput("");
+
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/chat`,
@@ -43,13 +59,22 @@ export default function ChatPage() {
 
       const backendMessages = res.data.messages;
 
-      setMessages((prev) => [...prev, ...backendMessages]);
-      setInput("");
+      // Reemplazar el mensaje "temporal" con el real
+      const aiMessage = backendMessages.find((msg) => msg.rol === "assistant");
+
+      setMessages((prev) => {
+        const filtered = prev.filter((msg) => !msg.temporal);
+        return [...filtered, aiMessage];
+      });
     } catch (err) {
       console.error("Error al enviar mensaje:", err.response?.data || err.message);
       alert("Error al enviar mensaje.");
+
+      // Si falla, remover mensaje temporal
+      setMessages((prev) => prev.filter((msg) => !msg.temporal));
     }
   };
+
 
   return (
     <section className="flex flex-col h-[calc(100vh-160px)] max-w-2xl mx-auto px-4 py-6 text-white">
