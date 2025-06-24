@@ -68,11 +68,19 @@ export default function ChatPage() {
       });
     } catch (err) {
       console.error("Error al enviar mensaje:", err.response?.data || err.message);
-      alert("Error al enviar mensaje.");
 
-      // Si falla, remover mensaje temporal
-      setMessages((prev) => prev.filter((msg) => !msg.temporal));
-    }
+      // 💬 Mensaje alternativo como si lo dijera el asistente
+      const fallbackMessage = {
+        rol: "assistant",
+        contenido: err.response?.data?.message || "⚠️ Ocurrió un error al comunicarse con LawBot.",
+      };
+
+      // 🔄 Remover mensaje temporal y agregar el mensaje de error
+      setMessages((prev) => {
+        const filtered = prev.filter((msg) => !msg.temporal);
+        return [...filtered, fallbackMessage];
+      });
+}
   };
 
 

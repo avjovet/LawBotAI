@@ -1,8 +1,9 @@
-const prisma = require('../utils/prisma');
 const axios = require('axios');
+const ChatModel = require('../models/chat.model');
+const MensajeModel = require('../models/mensaje.model');
 
 const handleChat = async (req, res) => {
-  const userId = req.userId; // del middleware
+  const userId = req.userId;
   const { prompt } = req.body;
 
   if (!prompt) {
@@ -10,48 +11,37 @@ const handleChat = async (req, res) => {
   }
 
   try {
-    // 🔄 Crea un nuevo chat
-    const chat = await prisma.chat.create({
-      data: {
-        usuarioId: userId,
-      },
+    // 🔄 Crear nuevo chat con el modelo
+    const chat = await ChatModel.create(userId);
+
+    // 💬 Guardar mensaje del usuario
+    const userMessage = await MensajeModel.create({
+      chatId: chat.id,
+      rol: 'user',
+      contenido: prompt,
     });
 
-    // 💬 Guarda mensaje del usuario
-    const userMessage = await prisma.mensaje.create({
-      data: {
-        chatId: chat.id,
-        rol: 'user',
-        contenido: prompt,
-      },
-    });
-
-    // 🌐 Llamada a tu modelo de Colab vía ngrok
+    // 🌐 Llamada al modelo de IA en Colab vía ngrok
     const llamaResponse = await axios.post(
       'https://3014-34-125-2-7.ngrok-free.app/v1/chat/completions',
       {
-        messages: [
-          { role: 'user', content: prompt }
-        ],
+        messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
       },
       {
         headers: {
           'ngrok-skip-browser-warning': 'true',
-        }
+        },
       }
     );
 
-
     const respuestaIA = llamaResponse.data.choices[0].message.content;
 
-    // 🤖 Guarda respuesta del asistente
-    const aiMessage = await prisma.mensaje.create({
-      data: {
-        chatId: chat.id,
-        rol: 'assistant',
-        contenido: respuestaIA,
-      },
+    // 🤖 Guardar mensaje del asistente
+    const aiMessage = await MensajeModel.create({
+      chatId: chat.id,
+      rol: 'assistant',
+      contenido: respuestaIA,
     });
 
     res.status(200).json({
@@ -62,7 +52,7 @@ const handleChat = async (req, res) => {
 
   } catch (err) {
     console.error('❌ Error en el controlador de chat:', err.message);
-    res.status(500).json({ message: 'Error al comunicarse con el modelo de IA' });
+    res.status(500).json({ message: 'Error al comunicarse con lawbot pipipipi' });
   }
 };
 
