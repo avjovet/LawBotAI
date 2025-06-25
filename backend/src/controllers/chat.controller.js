@@ -24,12 +24,9 @@ const handleChat = async (req, res) => {
 
     console.log("🌐 Enviando prompt al modelo LLaMA-3...");
     const llamaResponse = await axios.post(
-      'https://253c-34-147-74-238.ngrok-free.app/v1/chat/completions',  // ✅ Nuevo endpoint
+      'https://baf8-34-147-74-238.ngrok-free.app/v1/chat/completions',
       {
-        messages: [
-          { role: "system", content: "Eres un experto legal. Responde en base a tu conocimiento y sé claro." },
-          { role: "user", content: prompt }
-        ],
+        messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
         stream: false
       },
@@ -40,6 +37,7 @@ const handleChat = async (req, res) => {
         },
       }
     );
+
 
     console.log("🤖 Respuesta recibida:", llamaResponse.data);
     const respuestaIA = llamaResponse.data.choices[0].message.content;
