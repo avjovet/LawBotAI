@@ -2,10 +2,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import ChatHistory from "@/components/ChatHistory"; // Asegúrate de que esta ruta sea correcta
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // 🔁 Trigger para actualizar historial
   const bottomRef = useRef(null);
   const router = useRouter();
 
@@ -30,13 +32,11 @@ export default function ChatPage() {
       return;
     }
 
-    // 💬 Mostrar el mensaje del usuario inmediatamente
     const userMessage = {
       rol: "user",
       contenido: input,
     };
 
-    // 🕓 Mostrar mensaje temporal del asistente
     const loadingMessage = {
       rol: "assistant",
       contenido: "Escribiendo respuesta...",
@@ -58,65 +58,70 @@ export default function ChatPage() {
       );
 
       const backendMessages = res.data.messages;
-
-      // Reemplazar el mensaje "temporal" con el real
       const aiMessage = backendMessages.find((msg) => msg.rol === "assistant");
 
       setMessages((prev) => {
         const filtered = prev.filter((msg) => !msg.temporal);
         return [...filtered, aiMessage];
       });
+
+      // 🔄 Refrescar historial al crear nuevo chat
+      setRefreshTrigger((prev) => prev + 1);
+
     } catch (err) {
       console.error("Error al enviar mensaje:", err.response?.data || err.message);
 
-      // 💬 Mensaje alternativo como si lo dijera el asistente
       const fallbackMessage = {
         rol: "assistant",
-        contenido: err.response?.data?.message || "⚠️ Ocurrió un error al comunicarse con LawBot.",
+        contenido:
+          err.response?.data?.message ||
+          "⚠️ Ocurrió un error al comunicarse con LawBot.",
       };
 
-      // 🔄 Remover mensaje temporal y agregar el mensaje de error
       setMessages((prev) => {
         const filtered = prev.filter((msg) => !msg.temporal);
         return [...filtered, fallbackMessage];
       });
-}
+    }
   };
 
-
   return (
-    <section className="flex flex-col h-[calc(100vh-160px)] max-w-2xl mx-auto px-4 py-6 text-white">
-      <div className="flex-1 overflow-y-auto space-y-4 scrollbar-hide">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`p-2 rounded ${
-              msg.rol === "user"
-                ? "bg-zinc-800 self-end text-right"
-                : "bg-transparent self-start"
-            }`}
-          >
-            <p>{msg.contenido}</p>
-          </div>
-        ))}
-        <div ref={bottomRef} />
-      </div>
+    <div className="flex h-screen">
+      <ChatHistory refreshTrigger={refreshTrigger} />
 
-      <form onSubmit={handleSend} className="mt-4 flex">
-        <input
-          type="text"
-          className="flex-1 p-2 rounded-l bg-black border border-gray-400 text-white focus:outline-none"
-          placeholder="Escribe tu consulta legal..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="bg-gray-400 text-black font-semibold px-4 rounded-r hover:bg-white transition"
-        >
-          Enviar
-        </button>
-      </form>
-    </section>
+      <section className="flex flex-col flex-1 h-full px-4 py-6 text-white bg-black">
+        <div className="flex-1 overflow-y-auto space-y-4 scrollbar-hide">
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`p-2 rounded ${
+                msg.rol === "user"
+                  ? "bg-zinc-800 self-end text-right"
+                  : "bg-transparent self-start"
+              }`}
+            >
+              <p>{msg.contenido}</p>
+            </div>
+          ))}
+          <div ref={bottomRef} />
+        </div>
+
+        <form onSubmit={handleSend} className="mt-4 flex">
+          <input
+            type="text"
+            className="flex-1 p-2 rounded-l bg-black border border-gray-400 text-white focus:outline-none"
+            placeholder="Escribe tu consulta legal..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="bg-gray-400 text-black font-semibold px-4 rounded-r hover:bg-white transition"
+          >
+            Enviar
+          </button>
+        </form>
+      </section>
+    </div>
   );
 }

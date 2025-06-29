@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -9,11 +10,28 @@ export default function Navbar() {
   const isChatPage = pathname === "/chat";
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
 
-  // Verifica si hay token
   useEffect(() => {
     const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    if (token) {
+      setIsLoggedIn(true);
+
+      axios
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/api/protected/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          const nombre = res.data.user?.nombre || res.data.user?.email || "";
+          setUserName(nombre);
+        })
+        .catch((err) => {
+          console.error("Error al obtener el usuario:", err);
+          setIsLoggedIn(false);
+        });
+    }
   }, []);
 
   const handleLogout = () => {
@@ -29,9 +47,14 @@ export default function Navbar() {
         </Link>
 
         {isChatPage && isLoggedIn ? (
-          <button onClick={handleLogout} className="hover:text-red-400 transition">
-            Cerrar sesión
-          </button>
+          //////////////////////////////
+          <div className="flex items-center gap-4">
+            <span className="text-gray-300"> {userName}</span>
+            <button onClick={handleLogout} className="hover:text-red-400 transition">
+              Cerrar sesión
+            </button>
+          </div>
+          ///////////////////////////////////
         ) : (
           <div className="flex gap-4">
             <Link href="/login" className="hover:text-gray-300 transition">

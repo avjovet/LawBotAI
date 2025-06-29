@@ -16,18 +16,24 @@ model Usuario {
 }
 
 model Chat {
-  id         Int        @id @default(autoincrement())
-  usuario    Usuario    @relation("UsuarioChats", fields: [usuarioId], references: [id])
+  id         Int       @id @default(autoincrement())
+  usuario    Usuario   @relation("UsuarioChats", fields: [usuarioId], references: [id])
   usuarioId  Int
   mensajes   Mensaje[]
-  fecha      DateTime   @default(now())
+  fecha      DateTime  @default(now())
+
+  // Campo opcional para guardar el nombre del perfil usado desde el JSON
+  perfilBot  String?   // Ej: "abogado", "juez", etc. (clave del JSON estático)
 }
 
 model Mensaje {
   id        Int      @id @default(autoincrement())
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId    Int
   rol       String   // 'user' o 'assistant'
   contenido String
   timestamp DateTime @default(now())
 }
+
+
+
